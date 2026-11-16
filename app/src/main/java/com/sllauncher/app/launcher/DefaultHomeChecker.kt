@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -35,7 +36,9 @@ class AndroidDefaultHomeChecker @Inject constructor(
 ) : DefaultHomeChecker {
 
     override fun isDefaultHome(): Boolean {
-        roleManagerOrNull()?.let { return it.isRoleHeld(RoleManager.ROLE_HOME) }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            homeRoleManager()?.let { return it.isRoleHeld(RoleManager.ROLE_HOME) }
+        }
 
         // Android 8–9 fallback: ask which activity currently handles the Home intent.
         val homeIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
@@ -51,15 +54,17 @@ class AndroidDefaultHomeChecker @Inject constructor(
         return resolved?.activityInfo?.packageName == context.packageName
     }
 
-    override fun createRoleRequestIntent(): Intent? =
-        roleManagerOrNull()?.createRequestRoleIntent(RoleManager.ROLE_HOME)
+    override fun createRoleRequestIntent(): Intent? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        return homeRoleManager()?.createRequestRoleIntent(RoleManager.ROLE_HOME)
+    }
 
     override fun createHomeSettingsIntent(): Intent =
         Intent(Settings.ACTION_HOME_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-    private fun roleManagerOrNull(): RoleManager? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
-        val roleManager = context.getSystemService(RoleManager::class.java) ?: return null
-        return roleManager.takeIf { it.isRoleAvailable(RoleManager.ROLE_HOME) }
-    }
+    /** RoleManager, or null on OEM builds that do not offer the HOME role. */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun homeRoleManager(): RoleManager? =
+        context.getSystemService(RoleManager::class.java)
+            ?.takeIf { it.isRoleAvailable(RoleManager.ROLE_HOME) }
 }
