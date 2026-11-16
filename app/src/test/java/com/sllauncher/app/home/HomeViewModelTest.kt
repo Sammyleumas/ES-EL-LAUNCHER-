@@ -3,7 +3,9 @@ package com.sllauncher.app.home
 import com.sllauncher.app.MainDispatcherRule
 import com.sllauncher.app.launcher.FakeDefaultHomeChecker
 import com.sllauncher.app.launcher.HomeRoleRepository
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -12,6 +14,7 @@ import org.junit.Test
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
 
     @get:Rule
@@ -35,7 +38,7 @@ class HomeViewModelTest {
     fun `ui state exposes current time and default-home status`() = runTest {
         val checker = FakeDefaultHomeChecker(isDefault = false)
         val vm = HomeViewModel(HomeRoleRepository(checker)) { fixedTime }
-        vm.uiState.launchIn(backgroundScope)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         assertEquals(fixedTime, vm.uiState.value.now)
 
