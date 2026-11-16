@@ -31,19 +31,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build debug APK
-        run: ./gradlew --stacktrace assembleDebug
+        run: ./gradlew assembleDebug
 
       - name: Run unit tests
-        run: ./gradlew --stacktrace testDebugUnitTest
+        run: ./gradlew testDebugUnitTest
 
       - name: Compile instrumented tests
-        run: ./gradlew --stacktrace assembleDebugAndroidTest
+        run: ./gradlew assembleDebugAndroidTest
 
       - name: Lint
-        run: ./gradlew --stacktrace lintDebug
+        run: ./gradlew lintDebug
 
       - name: Build release APK (unsigned, verifies R8 shrinking)
-        run: ./gradlew --stacktrace assembleRelease
+        run: ./gradlew assembleRelease
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

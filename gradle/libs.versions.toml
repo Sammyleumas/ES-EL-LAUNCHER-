@@ -10,7 +10,7 @@ kotlin = "2.4.21"          # Also the Compose compiler version (bundled with Kot
 ksp = "2.3.14"             # KSP2; versioned independently of Kotlin since 2.3.0
 
 # Android SDK levels
-compileSdk = "36"
+compileSdk = "37"           # Required by Compose 1.12 / Navigation 2.10 AARs; compile-time only
 targetSdk = "36"
 minSdk = "26"              # Android 8.0: adaptive icons, notification channels, java.time
 
