@@ -23,13 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.core.os.ConfigurationCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -92,7 +91,8 @@ private val WallpaperTextShadow = Shadow(color = Color(0x99000000), offset = Off
 @Composable
 private fun ClockBlock(now: ZonedDateTime, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current)[0] ?: java.util.Locale.getDefault()
+    // Observable: recomposes when the user changes the system language.
+    val locale = LocalLocale.current.platformLocale
     val is24Hour = DateFormat.is24HourFormat(context)
 
     val timeFormatter = remember(locale, is24Hour) {
