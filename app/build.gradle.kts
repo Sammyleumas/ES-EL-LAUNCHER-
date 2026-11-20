@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -28,7 +30,7 @@ android {
         // or from keystore.properties (git-ignored). Keys are never stored in the repository.
         create("release") {
             val props = rootProject.file("keystore.properties").takeIf { it.exists() }?.let { file ->
-                java.util.Properties().apply { file.inputStream().use { load(it) } }
+                Properties().apply { file.inputStream().use { load(it) } }
             }
             fun value(env: String, prop: String): String? = System.getenv(env) ?: props?.getProperty(prop)
             value("SL_KEYSTORE_PATH", "storeFile")?.let { path ->
