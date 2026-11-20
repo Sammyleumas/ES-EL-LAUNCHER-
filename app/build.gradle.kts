@@ -16,10 +16,28 @@ android {
         applicationId = "com.sllauncher.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI passes -PversionCode=<run number> so every build can be installed over the last one.
+        versionCode = (project.findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        // Release signing uses YOUR upload key. It is read from environment variables (CI secrets)
+        // or from keystore.properties (git-ignored). Keys are never stored in the repository.
+        create("release") {
+            val props = rootProject.file("keystore.properties").takeIf { it.exists() }?.let { file ->
+                java.util.Properties().apply { file.inputStream().use { load(it) } }
+            }
+            fun value(env: String, prop: String): String? = System.getenv(env) ?: props?.getProperty(prop)
+            value("SL_KEYSTORE_PATH", "storeFile")?.let { path ->
+                storeFile = file(path)
+                storePassword = value("SL_KEYSTORE_PASSWORD", "storePassword")
+                keyAlias = value("SL_KEY_ALIAS", "keyAlias")
+                keyPassword = value("SL_KEY_PASSWORD", "keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -34,8 +52,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // Release signing is configured in Phase 20. Until then
-            // `assembleRelease` produces an unsigned APK used only to verify R8.
+            // Signed only when a release key is configured; otherwise the APK is unsigned.
+            signingConfigs.getByName("release").takeIf { it.storeFile != null }?.let { signingConfig = it }
         }
     }
 
@@ -77,6 +95,7 @@ dependencies {
 
     // Local storage: Room for structured data, DataStore for settings.
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 

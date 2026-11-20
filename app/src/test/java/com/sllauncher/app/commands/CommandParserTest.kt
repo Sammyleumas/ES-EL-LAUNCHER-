@@ -80,6 +80,12 @@ class CommandParserTest {
     }
 
     @Test
+    fun `read this refers to what is on screen`() {
+        assertEquals(LauncherCommand.ReadCurrentItem, parse("read this"))
+        assertEquals(LauncherCommand.ReadCurrentItem, parse("Read it to me"))
+    }
+
+    @Test
     fun `open play store is an app, not music`() {
         assertEquals(LauncherCommand.OpenApp("play store"), parse("open play store"))
     }

@@ -1,8 +1,29 @@
 package com.sllauncher.app.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.composable
+import com.sllauncher.app.assistant.AssistantOverlay
+import com.sllauncher.app.common.UiCommand
+import com.sllauncher.app.common.UiCommandBus
+import com.sllauncher.app.island.DynamicIsland
+import com.sllauncher.app.music.MusicRoute
 import com.sllauncher.app.navigation.FeatureGraph
 import com.sllauncher.app.navigation.HomeExtras
+import com.sllauncher.app.navigation.MusicDestination
+import com.sllauncher.app.navigation.NewsDestination
+import com.sllauncher.app.navigation.NotificationCenterDestination
+import com.sllauncher.app.navigation.SettingsDestination
+import com.sllauncher.app.news.NewsRoute
+import com.sllauncher.app.notifications.NotificationCenterRoute
+import com.sllauncher.app.notifications.NotificationRepository
+import com.sllauncher.app.settings.settingsGraph
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,11 +33,45 @@ import javax.inject.Singleton
  * app-wide overlays ([Overlays], e.g. the assistant panel).
  */
 @Singleton
-class AppShell @Inject constructor() {
-    val featureGraph: FeatureGraph = { }
-
-    fun homeExtras(): HomeExtras = HomeExtras()
+class AppShell @Inject constructor(
+    private val notifications: NotificationRepository,
+    private val bus: UiCommandBus,
+) {
+    val featureGraph: FeatureGraph = { nav ->
+        val back: () -> Unit = { nav.popBackStack() }
+        composable<NotificationCenterDestination> { NotificationCenterRoute(onBack = back) }
+        composable<NewsDestination> { NewsRoute(onBack = back) }
+        composable<MusicDestination> { MusicRoute(onBack = back) }
+        settingsGraph(nav)
+    }
 
     @Composable
-    fun Overlays() = Unit
+    fun homeExtras(): HomeExtras {
+        val active by notifications.notifications.collectAsStateWithLifecycle()
+        val counts = remember(active) {
+            active.filter { !it.isGroupSummary && it.isClearable }.groupingBy { it.packageName }.eachCount()
+        }
+        return remember(counts) {
+            HomeExtras(
+                island = { DynamicIsland(onOpenSettings = { bus.send(UiCommand.Navigate(SettingsDestination)) }) },
+                overview = { DailyOverview() },
+                badgeFor = { pkg -> counts[pkg] ?: 0 },
+            )
+        }
+    }
+
+    @Composable
+    fun Overlays() {
+        var assistantOpen by rememberSaveable { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            bus.commands.collect { command ->
+                when (command) {
+                    UiCommand.OpenAssistant -> assistantOpen = true
+                    is UiCommand.Navigate, UiCommand.CloseOverlays -> assistantOpen = false
+                    else -> Unit
+                }
+            }
+        }
+        AssistantOverlay(visible = assistantOpen, onDismiss = { assistantOpen = false })
+    }
 }

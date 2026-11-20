@@ -126,7 +126,9 @@ fun AppDrawerOverlay(
         visible = visible,
         onDismissRequest = onDismiss,
         title = "App drawer, ${state.installedCount} apps",
-        surfaceAlpha = state.settings.drawerPanelAlpha,
+        surfaceAlpha = if (state.settings.lowPerformanceMode) 1f else state.settings.drawerPanelAlpha,
+        widthFraction = state.settings.drawerWidthFraction,
+        heightFraction = state.settings.drawerHeightFraction,
     ) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 12.dp),

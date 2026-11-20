@@ -47,6 +47,7 @@ object CommandParser {
             matches(text, "(open|show)( the)? (sl|launcher|sl launcher) settings") -> return LauncherCommand.OpenLauncherSettings
             matches(text, "(read|tell me)( me)?( the)?( latest| today'?s)? (news|headlines)") -> return LauncherCommand.ReadNews
             matches(text, "(open|show)( me)?( the| my)? news") -> return LauncherCommand.OpenNews
+            matches(text, "read (this|it)( to me| aloud| out loud)?") -> return LauncherCommand.ReadCurrentItem
             matches(text, "(open|show)( my| the)? music( player)?") -> return LauncherCommand.OpenMusic
             matches(text, "(change|set|pick)( my| the)? wallpaper") -> return LauncherCommand.ChangeWallpaper
             matches(text, "(open|show)( my)? (notes|tasks|to ?do|productivity)") -> return LauncherCommand.OpenProductivity

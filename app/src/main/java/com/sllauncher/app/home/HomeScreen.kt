@@ -55,6 +55,8 @@ import com.sllauncher.app.navigation.SettingsDestination
 import com.sllauncher.app.navigation.WidgetPickerDestination
 import com.sllauncher.app.search.SearchOverlay
 import com.sllauncher.app.widgets.WidgetHostManager
+import com.sllauncher.core.designsystem.component.SLAssistantButton
+import com.sllauncher.core.designsystem.component.SLAssistantState
 import com.sllauncher.core.designsystem.component.SLBlock
 import com.sllauncher.core.designsystem.component.SLButton
 import com.sllauncher.core.designsystem.icon.SLIcons
@@ -161,6 +163,7 @@ fun HomeRoute(
         onSwipeUp = { drawerView = DrawerView.All; overlay = Overlay.Drawer },
         onSwipeDown = { onNavigate(NotificationCenterDestination) },
         onOpenSearch = { searchSeed = ""; overlay = Overlay.Search },
+        onOpenAssistant = viewModel::openAssistant,
         onOpenLauncherSetup = onOpenLauncherSetup,
     )
 
@@ -233,6 +236,7 @@ private fun HomeScreen(
     onSwipeUp: () -> Unit,
     onSwipeDown: () -> Unit,
     onOpenSearch: () -> Unit,
+    onOpenAssistant: () -> Unit,
     onOpenLauncherSetup: () -> Unit,
 ) {
     val settings = state.settings
@@ -284,7 +288,13 @@ private fun HomeScreen(
         }
         PageIndicator(state.pageCount, pagerState.currentPage, Modifier.align(Alignment.CenterHorizontally).padding(vertical = 6.dp))
         if (settings.homeShowSearchBar) {
-            HomeSearchBar(onClick = onOpenSearch, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
+            Row(Modifier.padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                HomeSearchBar(onClick = onOpenSearch, modifier = Modifier.weight(1f))
+                SLAssistantButton(state = SLAssistantState.Idle, onClick = onOpenAssistant, modifier = Modifier.size(48.dp))
+            }
+        }
+        if (!settings.homeShowSearchBar) {
+            SLAssistantButton(state = SLAssistantState.Idle, onClick = onOpenAssistant, modifier = Modifier.align(Alignment.End).padding(end = 16.dp).size(48.dp))
         }
         if (settings.dockEnabled) {
             Dock(state.dock, settings.homeIconScale, tileActions, Modifier.padding(horizontal = 12.dp, vertical = 8.dp))

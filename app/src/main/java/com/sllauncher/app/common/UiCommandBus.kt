@@ -14,6 +14,7 @@ sealed interface UiCommand {
     data class OpenDrawer(val view: DrawerView = DrawerView.All) : UiCommand
     data class OpenSearch(val query: String = "") : UiCommand
     data object CloseOverlays : UiCommand
+    data object OpenAssistant : UiCommand
     /** A type-safe navigation route object from `navigation/Destinations.kt`. */
     data class Navigate(val route: Any) : UiCommand
     data class ShowMessage(val text: String) : UiCommand

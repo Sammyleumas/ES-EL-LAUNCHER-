@@ -25,7 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.lifecycleScope
 import com.sllauncher.app.common.UiCommand
+import com.sllauncher.app.data.apps.AppIconLoader
+import com.sllauncher.app.data.apps.IconPackManager
+import com.sllauncher.app.productivity.ReminderReceiver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.sllauncher.app.common.UiCommandBus
 import com.sllauncher.app.data.settings.SettingsRepository
 import com.sllauncher.app.navigation.SLNavHost
@@ -52,6 +61,8 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var widgetHost: WidgetHostManager
     @Inject lateinit var commandBus: UiCommandBus
     @Inject lateinit var shell: AppShell
+    @Inject lateinit var iconPacks: IconPackManager
+    @Inject lateinit var iconLoader: AppIconLoader
 
     /** Fires when the user presses Home while the launcher is already running. */
     private val homeButtonPresses = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -62,6 +73,15 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        ReminderReceiver.ensureChannel(this)
+
+        // Load the chosen icon pack at start-up and whenever it changes.
+        lifecycleScope.launch {
+            settingsRepository.settings.map { it.iconPackPackage }.distinctUntilChanged().collect { pkg ->
+                val ok = withContext(Dispatchers.IO) { iconPacks.select(pkg) }
+                if (ok) iconLoader.clear()
+            }
+        }
 
         setContent {
             val settings by settingsRepository.settingsOrNull.collectAsStateWithLifecycle()

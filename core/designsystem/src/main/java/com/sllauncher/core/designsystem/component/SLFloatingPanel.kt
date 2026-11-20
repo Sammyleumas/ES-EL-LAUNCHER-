@@ -65,6 +65,8 @@ import kotlin.math.roundToInt
  * @param title announced by TalkBack when the panel opens.
  * @param surfaceAlpha opacity of the panel surface; restrained transparency
  *   lets a hint of wallpaper through without hurting legibility.
+ * @param widthFraction preferred share of the window width (user setting).
+ * @param heightFraction preferred share of the window height (user setting).
  */
 @Composable
 fun SLFloatingPanel(
@@ -75,6 +77,8 @@ fun SLFloatingPanel(
     dismissOnScrimTap: Boolean = true,
     dragToDismiss: Boolean = true,
     surfaceAlpha: Float = 0.94f,
+    widthFraction: Float = 0.8f,
+    heightFraction: Float = 0.7f,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val visibleState = remember { MutableTransitionState(false) }
@@ -115,7 +119,7 @@ fun SLFloatingPanel(
             Modifier.fillMaxSize().safeDrawingPadding(),
             contentAlignment = Alignment.Center,
         ) {
-            val panelSize = floatingPanelSize(maxWidth, maxHeight)
+            val panelSize = floatingPanelSize(maxWidth, maxHeight, widthFraction, heightFraction)
             AnimatedVisibility(
                 visibleState = visibleState,
                 enter = fadeIn(motion.medium()) + scaleIn(motion.medium(), initialScale = 0.94f),

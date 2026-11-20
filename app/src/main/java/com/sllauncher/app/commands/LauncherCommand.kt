@@ -50,6 +50,8 @@ sealed interface LauncherCommand {
         override val needsConfirmation = true
     }
     data object OpenCamera : LauncherCommand { override val description = "Open the camera" }
+    /** "Read this": reads whatever the user has open (e.g. a news article). */
+    data object ReadCurrentItem : LauncherCommand { override val description = "Read this aloud" }
     data object OpenProductivity : LauncherCommand { override val description = "Open notes and tasks" }
     data object OpenQuickSettings : LauncherCommand { override val description = "Open quick settings" }
 }
