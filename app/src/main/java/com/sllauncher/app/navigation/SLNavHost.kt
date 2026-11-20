@@ -2,46 +2,68 @@ package com.sllauncher.app.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sllauncher.app.common.UiCommand
 import com.sllauncher.app.home.HomeRoute
+import com.sllauncher.app.onboarding.OnboardingRoute
 import com.sllauncher.app.setup.LauncherSetupRoute
-import kotlinx.serialization.Serializable
+import com.sllauncher.app.widgets.WidgetHostManager
+import com.sllauncher.app.widgets.WidgetPickerRoute
+import kotlinx.coroutines.flow.Flow
 
-/**
- * Type-safe destinations. Each later phase adds its own route here
- * (app drawer, search, settings, ...). Floating panels such as the app
- * drawer will be overlays on Home rather than full-screen destinations.
- */
-@Serializable
-data object HomeDestination
-
-@Serializable
-data object LauncherSetupDestination
+/** Feature screens registered by later phases (news, music, settings...). */
+typealias FeatureGraph = NavGraphBuilder.(navController: NavHostController) -> Unit
 
 @Composable
 fun SLNavHost(
     navController: NavHostController,
+    startOnboarding: Boolean,
+    widgetHost: WidgetHostManager,
+    commands: Flow<UiCommand>,
+    homeExtras: HomeExtras,
+    featureGraph: FeatureGraph,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeDestination,
+        startDestination = if (startOnboarding) OnboardingDestination else HomeDestination,
         modifier = modifier,
     ) {
         composable<HomeDestination> {
             HomeRoute(
-                onOpenLauncherSetup = {
-                    navController.navigate(LauncherSetupDestination) { launchSingleTop = true }
-                },
+                onOpenLauncherSetup = { navController.navigate(LauncherSetupDestination) { launchSingleTop = true } },
+                onNavigate = { route -> navController.navigate(route) { launchSingleTop = true } },
+                widgetHost = widgetHost,
+                island = homeExtras.island,
+                overview = homeExtras.overview,
+                badgeFor = homeExtras.badgeFor,
+                commands = commands,
             )
+        }
+        composable<OnboardingDestination> {
+            OnboardingRoute(onDone = {
+                navController.navigate(HomeDestination) { popUpTo(OnboardingDestination) { inclusive = true } }
+            })
         }
         composable<LauncherSetupDestination> {
             LauncherSetupRoute(onDone = { navController.popBackStack(HomeDestination, inclusive = false) })
         }
+        composable<WidgetPickerDestination> {
+            WidgetPickerRoute(onBack = { navController.popBackStack() })
+        }
+        featureGraph(navController)
     }
 }
+
+/** Home-screen pieces provided by feature phases. */
+class HomeExtras(
+    val island: @Composable () -> Unit = {},
+    val overview: @Composable () -> Unit = {},
+    val badgeFor: (String) -> Int = { 0 },
+)
 
 /** Returns to the home screen, closing anything above it. Used when Home is pressed. */
 fun NavHostController.returnToHome() {

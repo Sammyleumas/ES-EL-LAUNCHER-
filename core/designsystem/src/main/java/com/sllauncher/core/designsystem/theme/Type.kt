@@ -104,3 +104,14 @@ val DefaultSLTypography = SLTypography(
 )
 
 internal val LocalSLTypography = staticCompositionLocalOf { DefaultSLTypography }
+
+/** The SL type scale with every style switched to [family] (used for the "system font" option). */
+fun SLTypography.withFontFamily(family: FontFamily): SLTypography = copy(
+    display = display.copy(fontFamily = family),
+    headline = headline.copy(fontFamily = family),
+    title = title.copy(fontFamily = family),
+    body = body.copy(fontFamily = family),
+    bodySmall = bodySmall.copy(fontFamily = family),
+    label = label.copy(fontFamily = family),
+    caption = caption.copy(fontFamily = family),
+)

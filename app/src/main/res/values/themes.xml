@@ -20,4 +20,12 @@
         <item name="android:windowIsTranslucent">false</item>
     </style>
 
+    <!-- Transparent window for confirmation dialogs started by other apps. -->
+    <style name="Theme.SLLauncher.Translucent">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
 </resources>

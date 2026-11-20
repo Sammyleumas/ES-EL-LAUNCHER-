@@ -2,9 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-        Phase 1 requests NO permissions. Each later feature declares and requests
-        its own permission only when the user enables that feature.
+        Permissions. Runtime ("dangerous") permissions are requested only when the
+        user turns on or first uses the feature that needs them; see docs/PERMISSIONS.md.
     -->
+    <!-- Contact search (runtime, asked when the user enables it in search). -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Local music library and music search (runtime, asked on first use). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- Lets "Uninstall" open Android's own uninstall confirmation (normal permission). -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- Hands timers and alarms to the clock app via AlarmClock intents (normal permission). -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+
+    <!-- Package visibility: only what a launcher needs, no QUERY_ALL_PACKAGES. -->
+    <queries>
+        <!-- Launchable apps for the drawer and home screen. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- Icon packs (ADW / Nova format). -->
+        <intent><action android:name="org.adw.launcher.THEMES" /></intent>
+        <intent><action android:name="com.novalauncher.THEME" /></intent>
+        <!-- Default dock apps on first run. -->
+        <intent><action android:name="android.intent.action.DIAL" /></intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_MESSAGING" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_BROWSER" />
+        </intent>
+        <intent><action android:name="android.media.action.STILL_IMAGE_CAMERA" /></intent>
+        <!-- On-device speech recognition and text-to-speech for the SL assistant. -->
+        <intent><action android:name="android.speech.RecognitionService" /></intent>
+        <intent><action android:name="android.intent.action.TTS_SERVICE" /></intent>
+    </queries>
 
     <application
         android:name=".SLLauncherApplication"
@@ -50,6 +85,21 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Receives "Add to home screen" requests from other apps (pinned shortcuts).
+            Android sends these to the default launcher; requests are validated with
+            LauncherApps.getPinItemRequest, so forged intents are ignored.
+        -->
+        <activity
+            android:name=".shortcuts.AddShortcutActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.SLLauncher.Translucent">
+            <intent-filter>
+                <action android:name="android.content.pm.action.CONFIRM_PIN_SHORTCUT" />
             </intent-filter>
         </activity>
     </application>

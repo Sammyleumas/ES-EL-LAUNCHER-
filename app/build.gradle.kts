@@ -53,6 +53,11 @@ android {
     }
 }
 
+ksp {
+    // Room writes each database version's schema here, so migrations can be verified.
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(project(":core:designsystem"))
 
@@ -67,6 +72,24 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Local storage: Room for structured data, DataStore for settings.
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
+
+    // Battery-aware background work (news refresh, history cleanup).
+    implementation(libs.androidx.work.runtime)
+
+    // Local music playback with a system media session.
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.session)
+
+    // Network images (news thumbnails) with memory/disk caching.
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

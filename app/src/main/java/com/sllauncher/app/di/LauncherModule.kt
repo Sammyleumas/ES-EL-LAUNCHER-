@@ -1,5 +1,7 @@
 package com.sllauncher.app.di
 
+import com.sllauncher.app.commands.FeatureCommandHandlers
+import com.sllauncher.app.commands.FeatureCommandHandlersImpl
 import com.sllauncher.app.launcher.AndroidDefaultHomeChecker
 import com.sllauncher.app.launcher.DefaultHomeChecker
 import com.sllauncher.app.launcher.SystemTimeSource
@@ -19,4 +21,7 @@ abstract class LauncherModule {
 
     @Binds
     abstract fun bindTimeSource(impl: SystemTimeSource): TimeSource
+
+    @Binds
+    abstract fun bindFeatureCommands(impl: FeatureCommandHandlersImpl): FeatureCommandHandlers
 }
