@@ -124,7 +124,7 @@ fun PrivacyRoute(onBack: () -> Unit, viewModel: PrivacyViewModel = hiltViewModel
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let(viewModel::exportTo) }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingImport = uri }
 
-    val appSettings = { context.startSafely(SystemIntents.appDetails(context)) }
+    val appSettings: () -> Unit = { context.startSafely(SystemIntents.appDetails(context)) }
     // Re-read permission states every time the screen resumes (the user may have just changed one).
     val rows = remember(refresh) { listOf(
         PermissionRow("Default home app", "Lets SL be your home screen and show app shortcuts.", viewModel.isDefaultHome()) { context.startSafely(SystemIntents.homeSettings()) },
