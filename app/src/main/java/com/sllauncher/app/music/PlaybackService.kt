@@ -12,6 +12,7 @@ import androidx.media3.session.MediaSessionService
 import com.sllauncher.app.MainActivity
 
 /** The audio session id of SL's player, for the system equalizer panel. */
+@OptIn(UnstableApi::class)
 object AudioSessionHolder {
     @Volatile var audioSessionId: Int = C.AUDIO_SESSION_ID_UNSET
 }
@@ -21,10 +22,10 @@ object AudioSessionHolder {
  * and headset controls work and the Dynamic Island sees it like any player.
  * Runs as a media foreground service only while music is playing.
  */
+@OptIn(UnstableApi::class) // Audio session id and C constants are marked unstable in Media3.
 class PlaybackService : MediaSessionService() {
     private var session: MediaSession? = null
 
-    @OptIn(UnstableApi::class) // audioSessionId is needed for the system equalizer panel.
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this)

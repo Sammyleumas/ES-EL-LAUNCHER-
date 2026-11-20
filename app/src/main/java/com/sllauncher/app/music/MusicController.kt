@@ -41,6 +41,7 @@ data class PlayerState(
 }
 
 /** Controls SL's own player through its media session. */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Singleton
 class MusicController @Inject constructor(
     @param:ApplicationContext private val context: Context,
