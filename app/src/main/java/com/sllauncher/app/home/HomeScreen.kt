@@ -3,7 +3,6 @@ package com.sllauncher.app.home
 import android.text.format.DateFormat
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +32,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sllauncher.app.R
+import com.sllauncher.core.designsystem.component.SLBlock
 import com.sllauncher.core.designsystem.component.SLButton
 import com.sllauncher.core.designsystem.theme.SLTheme
 import java.time.ZonedDateTime
@@ -114,7 +114,7 @@ private fun ClockBlock(now: ZonedDateTime, modifier: Modifier = Modifier) {
             Box(
                 Modifier
                     .size(width = 16.dp, height = 4.dp)
-                    .background(SLTheme.colors.accent),
+                    .background(SLTheme.colors.accentIndicator),
             )
             Spacer(Modifier.size(SLTheme.spacing.sm))
             Text(
@@ -128,21 +128,18 @@ private fun ClockBlock(now: ZonedDateTime, modifier: Modifier = Modifier) {
 
 @Composable
 private fun NotDefaultBanner(onSetUp: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = SLTheme.colors
-    Row(
-        modifier = modifier
-            .background(colors.surface)
-            .border(SLTheme.shapes.borderWidth, colors.border)
-            .padding(SLTheme.spacing.lg),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SLTheme.spacing.md),
-    ) {
-        Text(
-            text = stringResource(R.string.home_not_default_title),
-            style = SLTheme.typography.body,
-            color = colors.textPrimary,
-            modifier = Modifier.weight(1f),
-        )
-        SLButton(text = stringResource(R.string.home_not_default_action), onClick = onSetUp)
+    SLBlock(modifier = modifier, shadow = true) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SLTheme.spacing.md),
+        ) {
+            Text(
+                text = stringResource(R.string.home_not_default_title),
+                style = SLTheme.typography.body,
+                color = SLTheme.colors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            SLButton(text = stringResource(R.string.home_not_default_action), onClick = onSetUp)
+        }
     }
 }

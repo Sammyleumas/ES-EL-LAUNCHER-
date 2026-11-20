@@ -28,9 +28,23 @@ data class SLShapes(
     val cornerMedium: Dp = 4.dp,
     val borderWidth: Dp = 2.dp,
     val blockShadowOffset: Dp = 4.dp,
+    val panelShadowOffset: Dp = 6.dp,
     /** Minimum interactive size required by accessibility guidelines. */
     val minTouchTarget: Dp = 48.dp,
 )
 
+/** Standard component sizes so tiles, rows and controls line up across screens. */
+@Immutable
+data class SLSizes(
+    val iconSmall: Dp = 16.dp,
+    val icon: Dp = 24.dp,
+    val appIcon: Dp = 52.dp,
+    val controlHeight: Dp = 48.dp,
+    val rowMinHeight: Dp = 56.dp,
+    val navBarHeight: Dp = 64.dp,
+    val assistantButton: Dp = 64.dp,
+)
+
 internal val LocalSLSpacing = staticCompositionLocalOf { SLSpacing() }
 internal val LocalSLShapes = staticCompositionLocalOf { SLShapes() }
+internal val LocalSLSizes = staticCompositionLocalOf { SLSizes() }

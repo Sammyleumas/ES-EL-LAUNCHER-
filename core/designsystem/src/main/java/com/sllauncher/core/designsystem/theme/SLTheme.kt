@@ -4,29 +4,60 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Root theme for every SL Launcher screen.
  *
- * SL tokens are exposed through [SLTheme.colors], [SLTheme.typography],
- * [SLTheme.spacing] and [SLTheme.shapes]. A Material 3 theme is also
+ * SL tokens are exposed through [SLTheme]. A Material 3 theme is also
  * provided, mapped onto the same tokens, so any Material component we use
- * (text fields, sliders, dialogs) inherits the SL identity instead of
+ * (text selection, ripples, sheets) inherits the SL identity instead of
  * Material's default purple.
+ *
+ * @param reduceMotion force reduced motion on or off; `null` follows the
+ *   Android "Remove animations" setting.
  */
 @Composable
 fun SLTheme(
-    colors: SLColors = DefaultSLColors,
+    colors: SLColors = DarkSLColors,
     typography: SLTypography = DefaultSLTypography,
+    reduceMotion: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
-    val spacing = SLSpacing()
+    val context = LocalContext.current
+    val systemReduced = remember(context) { systemAnimationsDisabled(context) }
+    val motion = SLMotion(reduced = reduceMotion ?: systemReduced)
     val shapes = SLShapes()
 
-    val materialColors = darkColorScheme(
+    CompositionLocalProvider(
+        LocalSLColors provides colors,
+        LocalSLTypography provides typography,
+        LocalSLSpacing provides SLSpacing(),
+        LocalSLShapes provides shapes,
+        LocalSLSizes provides SLSizes(),
+        LocalSLMotion provides motion,
+    ) {
+        MaterialTheme(
+            colorScheme = materialColorsFor(colors),
+            shapes = Shapes(
+                extraSmall = RoundedCornerShape(shapes.cornerSmall),
+                small = RoundedCornerShape(shapes.cornerSmall),
+                medium = RoundedCornerShape(shapes.cornerMedium),
+                large = RoundedCornerShape(shapes.cornerMedium),
+                extraLarge = RoundedCornerShape(shapes.cornerMedium),
+            ),
+            content = content,
+        )
+    }
+}
+
+private fun materialColorsFor(colors: SLColors) = if (colors.isDark) {
+    darkColorScheme(
         primary = colors.accent,
         onPrimary = colors.onAccent,
         secondary = colors.textPrimary,
@@ -37,29 +68,36 @@ fun SLTheme(
         onSurface = colors.textPrimary,
         surfaceVariant = colors.surfaceElevated,
         onSurfaceVariant = colors.textSecondary,
-        outline = colors.border,
+        surfaceContainerLow = colors.surface,
+        surfaceContainer = colors.surface,
+        surfaceContainerHigh = colors.surfaceElevated,
+        outline = colors.borderStrong,
+        outlineVariant = colors.border,
         error = colors.error,
+        onError = colors.onError,
+        scrim = colors.scrim,
     )
-    val materialShapes = Shapes(
-        extraSmall = RoundedCornerShape(shapes.cornerSmall),
-        small = RoundedCornerShape(shapes.cornerSmall),
-        medium = RoundedCornerShape(shapes.cornerMedium),
-        large = RoundedCornerShape(shapes.cornerMedium),
-        extraLarge = RoundedCornerShape(shapes.cornerMedium),
+} else {
+    lightColorScheme(
+        primary = colors.accent,
+        onPrimary = colors.onAccent,
+        secondary = colors.textPrimary,
+        onSecondary = colors.background,
+        background = colors.background,
+        onBackground = colors.textPrimary,
+        surface = colors.surface,
+        onSurface = colors.textPrimary,
+        surfaceVariant = colors.surfaceElevated,
+        onSurfaceVariant = colors.textSecondary,
+        surfaceContainerLow = colors.surface,
+        surfaceContainer = colors.surface,
+        surfaceContainerHigh = colors.surfaceElevated,
+        outline = colors.borderStrong,
+        outlineVariant = colors.border,
+        error = colors.error,
+        onError = colors.onError,
+        scrim = colors.scrim,
     )
-
-    CompositionLocalProvider(
-        LocalSLColors provides colors,
-        LocalSLTypography provides typography,
-        LocalSLSpacing provides spacing,
-        LocalSLShapes provides shapes,
-    ) {
-        MaterialTheme(
-            colorScheme = materialColors,
-            shapes = materialShapes,
-            content = content,
-        )
-    }
 }
 
 /** Accessors for the current SL design tokens. */
@@ -75,4 +113,10 @@ object SLTheme {
 
     val shapes: SLShapes
         @Composable @ReadOnlyComposable get() = LocalSLShapes.current
+
+    val sizes: SLSizes
+        @Composable @ReadOnlyComposable get() = LocalSLSizes.current
+
+    val motion: SLMotion
+        @Composable @ReadOnlyComposable get() = LocalSLMotion.current
 }

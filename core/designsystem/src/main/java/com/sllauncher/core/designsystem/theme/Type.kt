@@ -2,65 +2,101 @@ package com.sllauncher.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.sllauncher.core.designsystem.R
 
 /**
- * SL type scale. Phase 1 uses the platform sans-serif; Phase 2 replaces
- * [SLFontFamily] with a bundled typeface so every device renders identically.
- * All sizes are in `sp`, so they follow the user's system font-size setting.
+ * Space Grotesk (SIL Open Font License, see assets/licenses) is bundled as a
+ * single 133 KB variable font and used for display text, headings and labels,
+ * where the brand voice lives. Each weight below selects a point on the
+ * font's weight axis (300–700).
  */
-internal val SLFontFamily: FontFamily = FontFamily.SansSerif
+@OptIn(ExperimentalTextApi::class)
+internal val SLDisplayFontFamily = FontFamily(
+    Font(
+        R.font.space_grotesk,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(FontVariation.weight(500)),
+    ),
+    Font(
+        R.font.space_grotesk,
+        weight = FontWeight.SemiBold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(600)),
+    ),
+    Font(
+        R.font.space_grotesk,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(700)),
+    ),
+)
 
+/**
+ * Running text uses the platform sans-serif: zero APK cost and tuned for
+ * long reading (news, notifications, settings descriptions).
+ */
+internal val SLBodyFontFamily: FontFamily = FontFamily.SansSerif
+
+/** All sizes are in `sp`, so they follow the user's system font-size setting. */
 @Immutable
 data class SLTypography(
     val display: TextStyle,
     val headline: TextStyle,
     val title: TextStyle,
     val body: TextStyle,
+    val bodySmall: TextStyle,
     val label: TextStyle,
     val caption: TextStyle,
 )
 
 val DefaultSLTypography = SLTypography(
     display = TextStyle(
-        fontFamily = SLFontFamily,
-        fontWeight = FontWeight.Black,
+        fontFamily = SLDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 64.sp,
         lineHeight = 64.sp,
-        letterSpacing = (-0.02).em,
+        letterSpacing = (-0.03).em,
     ),
     headline = TextStyle(
-        fontFamily = SLFontFamily,
-        fontWeight = FontWeight.ExtraBold,
+        fontFamily = SLDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
         lineHeight = 32.sp,
         letterSpacing = (-0.01).em,
     ),
     title = TextStyle(
-        fontFamily = SLFontFamily,
-        fontWeight = FontWeight.Bold,
+        fontFamily = SLDisplayFontFamily,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 24.sp,
     ),
     body = TextStyle(
-        fontFamily = SLFontFamily,
+        fontFamily = SLBodyFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
     ),
+    bodySmall = TextStyle(
+        fontFamily = SLBodyFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+    ),
     label = TextStyle(
-        fontFamily = SLFontFamily,
+        fontFamily = SLDisplayFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         lineHeight = 18.sp,
         letterSpacing = 0.06.em,
     ),
     caption = TextStyle(
-        fontFamily = SLFontFamily,
+        fontFamily = SLBodyFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 12.sp,
         lineHeight = 16.sp,

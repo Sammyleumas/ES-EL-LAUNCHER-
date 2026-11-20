@@ -108,7 +108,7 @@ fun LauncherSetupScreen(
                 .padding(spacing.xl),
             verticalArrangement = Arrangement.spacedBy(spacing.lg),
         ) {
-            Box(Modifier.size(width = 48.dp, height = 8.dp).background(colors.accent))
+            Box(Modifier.size(width = 48.dp, height = 8.dp).background(colors.accentIndicator))
             Text(
                 text = stringResource(R.string.setup_title),
                 style = SLTheme.typography.headline,
@@ -170,7 +170,7 @@ private fun StatusRow(isDefault: Boolean) {
         Box(
             Modifier
                 .size(12.dp)
-                .background(if (isDefault) colors.accent else colors.border),
+                .background(if (isDefault) colors.accentIndicator else colors.borderStrong),
         )
         Text(
             text = stringResource(
